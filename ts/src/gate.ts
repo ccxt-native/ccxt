@@ -1865,7 +1865,7 @@ export default class gate extends Exchange {
         // sandbox/testnet only supports future markets
         const apiBackup = this.safeValue (this.urls, 'apiBackup');
         if (apiBackup !== undefined) {
-            return undefined;
+            return {};
         }
         const response = await this.publicSpotGetCurrencies (params);
         //

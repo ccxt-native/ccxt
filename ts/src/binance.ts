@@ -2799,19 +2799,19 @@ export default class binance extends Exchange {
     async fetchCurrencies (params = {}): Promise<Currencies> {
         const fetchCurrenciesEnabled = this.safeBool (this.options, 'fetchCurrencies');
         if (!fetchCurrenciesEnabled) {
-            return undefined;
+            return {};
         }
         // this endpoint requires authentication
         // while fetchCurrencies is a public API method by design
         // therefore we check the keys here
         // and fallback to generating the currencies from the markets
         if (!this.checkRequiredCredentials (false)) {
-            return undefined;
+            return {};
         }
         // sandbox/testnet does not support sapi endpoints
         const apiBackup = this.safeValue (this.urls, 'apiBackup');
         if (apiBackup !== undefined) {
-            return undefined;
+            return {};
         }
         const promises = [ this.sapiGetCapitalConfigGetall (params) ];
         const fetchMargins = this.safeBool (this.options, 'fetchMargins', false);
@@ -11229,11 +11229,14 @@ export default class binance extends Exchange {
      * @returns {object} response from the exchange
      */
     async setPositionMode (hedged: boolean, symbol: Str = undefined, params = {}) {
-        const defaultType = this.safeString (this.options, 'defaultType', 'future');
-        const type = this.safeString (params, 'type', defaultType);
-        params = this.omit (params, [ 'type' ]);
+        let market = undefined;
+        if (symbol !== undefined) {
+            market = this.market (symbol);
+        }
+        let type = undefined;
+        [ type, params ] = this.handleMarketTypeAndParams ('setPositionMode', market, params);
         let subType = undefined;
-        [ subType, params ] = this.handleSubTypeAndParams ('setPositionMode', undefined, params);
+        [ subType, params ] = this.handleSubTypeAndParams ('setPositionMode', market, params);
         let isPortfolioMargin = undefined;
         [ isPortfolioMargin, params ] = this.handleOptionAndParams2 (params, 'setPositionMode', 'papi', 'portfolioMargin', false);
         let dualSidePosition = undefined;
