@@ -1727,9 +1727,15 @@ type IExchange interface {
             return;
         }
 
+        this.transpileErrorHierarchy ();
+
+        if (!shouldTranspileTests) {
+            return;
+        }
+        
+
         this.transpileTests();
 
-        this.transpileErrorHierarchy ();
 
         log.bright.green ('Transpiled successfully.');
     }
